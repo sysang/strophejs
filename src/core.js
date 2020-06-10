@@ -4,13 +4,14 @@
 
     Copyright 2006-2018, OGG, LLC
 */
-/*global define, document, sessionStorage, setTimeout, clearTimeout, ActiveXObject, DOMParser, btoa, atob, module */
+/*global define, sessionStorage, setTimeout, clearTimeout, ActiveXObject, btoa, atob, module */
 
 import * as shims from './shims';
 import { atob, btoa } from 'abab'
 import MD5 from './md5';
 import SHA1 from './sha1';
 import utils from './utils';
+import xmldom from 'xmldom';
 
 /** Function: $build
  *  Create a Strophe.Builder.
@@ -341,7 +342,8 @@ const Strophe = {
      */
     xmlGenerator: function () {
         if (!Strophe._xmlGenerator) {
-            Strophe._xmlGenerator = shims.getDummyXMLDOMDocument()
+            Strophe._xmlGenerator =
+                new xmldom.DOMImplementation().createDocument('jabber:client', 'strophe', null);
         }
         return Strophe._xmlGenerator;
     },
@@ -461,8 +463,8 @@ const Strophe = {
     xmlHtmlNode: function (html) {
         let node;
         //ensure text is escaped
-        if (shims.DOMParser) {
-            const parser = new shims.DOMParser();
+        if (xmldom.DOMParser) {
+            const parser = new xmldom.DOMParser();
             node = parser.parseFromString(html, "text/xml");
         } else {
             node = new ActiveXObject("Microsoft.XMLDOM");

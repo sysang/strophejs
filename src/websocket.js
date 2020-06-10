@@ -5,10 +5,11 @@
     Copyright 2006-2008, OGG, LLC
 */
 
-/* global window, clearTimeout, WebSocket, DOMParser */
+/* global window, clearTimeout, WebSocket */
 
-import { DOMParser, WebSocket } from './shims';
+import { WebSocket } from './shims';
 import core from './core';
+import xmldom from 'xmldom';
 
 const Strophe = core.Strophe;
 const $build = core.$build;
@@ -102,6 +103,7 @@ Strophe.Websocket.prototype = {
         if (errors.length === 0) {
             return false;
         }
+
         const error = errors[0];
 
         let condition = "";
@@ -225,7 +227,7 @@ Strophe.Websocket.prototype = {
             const data = message.data.replace(/^(<\?.*?\?>\s*)*/, "");
             if (data === '') return;
 
-            const streamStart = new DOMParser().parseFromString(data, "text/xml").documentElement;
+            const streamStart = new xmldom.DOMParser().parseFromString(data, "text/xml").documentElement;
             this._conn.xmlInput(streamStart);
             this._conn.rawInput(message.data);
 
@@ -236,7 +238,7 @@ Strophe.Websocket.prototype = {
             }
         } else if (message.data.indexOf("<close ") === 0) { // <close xmlns="urn:ietf:params:xml:ns:xmpp-framing />
             // Parse the raw string to an XML element
-            const parsedMessage = new DOMParser().parseFromString(message.data, "text/xml").documentElement;
+            const parsedMessage = new xmldom.DOMParser().parseFromString(message.data, "text/xml").documentElement;
             // Report this input to the raw and xml handlers
             this._conn.xmlInput(parsedMessage);
             this._conn.rawInput(message.data);
@@ -263,7 +265,7 @@ Strophe.Websocket.prototype = {
             }
         } else {
             const string = this._streamWrap(message.data);
-            const elem = new DOMParser().parseFromString(string, "text/xml").documentElement;
+            const elem = new xmldom.DOMParser().parseFromString(string, "text/xml").documentElement;
             this.socket.onmessage = this._onMessage.bind(this);
             this._conn._connect_cb(elem, null, message.data);
         }
@@ -474,13 +476,13 @@ Strophe.Websocket.prototype = {
             return;
         } else if (message.data.search("<open ") === 0) {
             // This handles stream restarts
-            elem = new DOMParser().parseFromString(message.data, "text/xml").documentElement;
+            elem = new xmldom.DOMParser().parseFromString(message.data, "text/xml").documentElement;
             if (!this._handleStreamStart(elem)) {
                 return;
             }
         } else {
             const data = this._streamWrap(message.data);
-            elem = new DOMParser().parseFromString(data, "text/xml").documentElement;
+            elem = new xmldom.DOMParser().parseFromString(data, "text/xml").documentElement;
         }
 
         if (this._check_streamerror(elem, Strophe.Status.ERROR)) {

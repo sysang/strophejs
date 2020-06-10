@@ -7,8 +7,8 @@
 
 /* global window, setTimeout, clearTimeout, XMLHttpRequest, ActiveXObject */
 
-import { DOMParser } from './shims'
 import core from './core';
+import xmldom from 'xmldom';
 
 const Strophe = core.Strophe;
 const $build = core.$build;
@@ -87,7 +87,7 @@ Strophe.Request.prototype = {
         } else if (this.xhr.responseText) {
             // In React Native, we may get responseText but no responseXML.  We can try to parse it manually.
             Strophe.debug("Got responseText but no responseXML; attempting to parse it with DOMParser...");
-            node = new DOMParser().parseFromString(this.xhr.responseText, 'application/xml').documentElement;
+            node = new xmldom.DOMParser().parseFromString(this.xhr.responseText, 'application/xml').documentElement;
             if (!node) {
                 throw new Error('Parsing produced null node');
             } else if (node.querySelector('parsererror')) {
